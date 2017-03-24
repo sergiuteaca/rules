@@ -291,7 +291,15 @@ trait ContextHandlerTrait {
         $value = $plugin->getContextValue($context_name);
         foreach ($processors as $processor_plugin_id => $configuration) {
           $data_processor = $this->processorManager->createInstance($processor_plugin_id, $configuration);
-          $value = $data_processor->process($value, $rules_state);
+          if (is_array($value)) {
+            foreach ($value as $item) {
+              $values[] = $data_processor->process($item, $rules_state);
+            }
+            $value = !empty($values) ? $values : [];
+          }
+          else {
+            $value = $data_processor->process($value, $rules_state);
+          }
         }
         $plugin->setContextValue($context_name, $value);
       }
